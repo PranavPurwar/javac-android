@@ -130,7 +130,6 @@ help               → Show this help
 Examples:
 
 javac -javaHome <path_to_home> --version
-kotlinc --version
 
 Notes:
 - Output directory defaults to cache if not provided
