@@ -1,0 +1,10 @@
+
+jdk:
+  - openjdk17
+
+install:
+  - ./gradlew clean publishPatchedJavaCompilerPublicationToMavenLocal
+
+script:
+  - ./gradlew assemble
+
