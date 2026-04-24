@@ -15,6 +15,12 @@ jPatchTask.configure {
     outputs.upToDateWhen { false }
 }
 
+configurations.create("patchedJavac")
+
+artifacts {
+    add("patchedJavac", tasks.named("patchJavaCompilerJar"))
+}
+
 publishing {
     publications {
         create<MavenPublication>("patchedJavaCompiler") {

@@ -14,8 +14,6 @@ android {
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -44,5 +42,5 @@ dependencies {
     implementation(libs.androidx.core.ktx)
 
     implementation("com.github.Cosmic-IDE.kotlinc-android:jaxp:fce2462f00")
-    implementation(files("../build/patchedJavaCompilerJar/nb-javac-$javaCompilerVersion-patched.jar"))
+    implementation(project(path = ":", configuration = "patchedJavac"))
 }

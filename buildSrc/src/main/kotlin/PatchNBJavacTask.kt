@@ -51,10 +51,17 @@ open class PatchNBJavacTask: DefaultTask() {
             project.findProperty("stripResources")?.let { set(it as String) }
         }
 
-    @get:OutputDirectory
+    @get:Internal
     val outputDir: DirectoryProperty =
         project.objects.directoryProperty()
             .convention(project.layout.buildDirectory.dir("patchedJavaCompilerJar"))
+
+    @get:OutputFile
+    val patchedJarFile = project.objects.fileProperty().convention(
+        outputDir.file(
+            javaCompilerVersion.map { "nb-javac-$it-patched.jar" }
+        )
+    )
 
     private val layout: ProjectLayout = project.layout
 
@@ -79,6 +86,8 @@ open class PatchNBJavacTask: DefaultTask() {
                 "Set javaCompilerVersion in gradle.properties or with -PjavaCompilerVersion"
             )
 
+        val patchedJar = patchedJarFile.get().asFile
+
         val compilerJar = resolveCompilerJar(version)
 
         val classesDirs = findSourceClassesDirs().filter { it.exists() && it.isDirectory }
@@ -101,7 +110,6 @@ open class PatchNBJavacTask: DefaultTask() {
             copyClasses(it, unpackedDir)
         }
 
-        val patchedJar = outputDir.get().asFile.resolve("nb-javac-$version-patched.jar")
         repackJar(unpackedDir, patchedJar)
 
         println("✅ Patched jar written to: ${patchedJar.absolutePath}")

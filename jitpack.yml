@@ -1,6 +1,3 @@
 
 jdk:
   - openjdk17
-
-script:
-  - ./gradlew clean publishPatchedJavaCompilerPublicationToMavenLocal
