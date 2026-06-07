@@ -140,8 +140,8 @@ open class PatchNBJavacTask: DefaultTask() {
                 println("Source Directory for patches (${srcProj.path}): ${resolved.absolutePath}")
                 result.add(resolved)
             } else {
-                println("Source Directory for patches (${srcProj.path}): ${buildDir.resolve("classes/java").absolutePath}")
-                result.add(buildDir.resolve("classes/java"))
+                println("Source Directory for patches (${srcProj.path}): ${buildDir.resolve("classes/java/main").absolutePath}")
+                result.add(buildDir.resolve("classes/java/main"))
 //                buildDir.walkTopDown()
 //                    .filter { it.isFile && it.extension == "class" }
 //                    .mapNotNull { classFile ->
