@@ -1,10 +1,9 @@
 package com.sun.tools.javac;
 
-import com.sun.nio.zipfs.ZipFileSystemProvider;
-
 import java.nio.file.spi.FileSystemProvider;
 
 import jdk.internal.jrtfs.JrtFileSystemProvider;
+import jdk.nio.zipfs.ZipFileSystemProvider;
 
 public class ConfigProvider {
     public static String JAVA_HOME = "";

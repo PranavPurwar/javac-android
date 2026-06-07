@@ -25,7 +25,7 @@
 
 package com.sun.tools.javac.platform;
 
-import com.sun.nio.zipfs.ZipFileSystemProvider;
+import jdk.nio.zipfs.ZipFileSystemProvider;
 import com.sun.source.util.Plugin;
 import com.sun.tools.javac.ConfigProvider;
 import com.sun.tools.javac.code.Source;
@@ -129,7 +129,7 @@ public class JDKPlatformProvider implements PlatformProvider {
 //                    FileSystem fs = FileSystems.newFileSystem(ctSymFile, (ClassLoader) null);
                     FileSystem fs = new ZipFileSystemProvider().newFileSystem(ctSymFile, CT_SYM_ZIP_ENV);
                     DirectoryStream<Path> dir =
-                         Files.newDirectoryStream(fs.getRootDirectories().iterator().next())) {
+                            Files.newDirectoryStream(fs.getRootDirectories().iterator().next())) {
                 for (Path section : dir) {
                     if (section.getFileName().toString().contains("-"))
                         continue;

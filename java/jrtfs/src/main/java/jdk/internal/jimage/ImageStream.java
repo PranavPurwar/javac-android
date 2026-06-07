@@ -32,7 +32,7 @@ import java.util.Objects;
 
 /**
  * @implNote This class needs to maintain JDK 8 source compatibility.
- * <p>
+ *
  * It is used internally in the JDK to implement jimage/jrtfs access,
  * but also compiled and delivered as part of the jrtfs.jar to support access
  * to the jimage file provided by the shipped JDK by tools running on JDK 8.
@@ -74,7 +74,7 @@ public class ImageStream {
         int padding = (getSize() - 1) & ((1 << alignment) - 1);
 
         for (int i = 0; i < padding; i++) {
-            put((byte) 0);
+            put((byte)0);
         }
 
         return this;
@@ -140,7 +140,7 @@ public class ImageStream {
     }
 
     public ImageStream put(int byt) {
-        return put((byte) byt);
+        return put((byte)byt);
     }
 
     public ImageStream put(byte bytes[], int offset, int size) {
@@ -164,7 +164,7 @@ public class ImageStream {
     }
 
     public ImageStream putShort(int value) {
-        return putShort((short) value);
+        return putShort((short)value);
     }
 
     public ImageStream putInt(int value) {

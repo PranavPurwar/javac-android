@@ -17,10 +17,10 @@ android {
 }
 
 dependencies {
-    compileOnly(files("../javac/libs/nb-javac-26+35.jar"))
+    compileOnly(files("../javac/libs/nb-javac-27+23.jar"))
 
-    //compileOnly(files("../javac/libs/nb-javac-26+35.jar"))
-    implementation(project(":java:zipfs"))
+    //compileOnly(files("../javac/libs/nb-javac-27+23.jar"))
+    compileOnly(project(":java:zipfs"))
     implementation(project(":java:jrtfs"))
 
 }
@@ -28,13 +28,13 @@ tasks.withType<JavaCompile>().configureEach {
     //options.compilerArgs.add("-XDignore.symbol.file")
     //options.bootstrapClasspath = files(
     //    System.getenv("JAVA_HOME") + "/jre/lib/rt.jar",
-    //    "../javac/libs/nb-javac-26+35.jar"
+    //    "../javac/libs/nb-javac-27+23.jar"
     //)
         options.compilerArgs.addAll(
             listOf(
                 "-XDignore.symbol.file",
                 "--patch-module",
-                "jdk.compiler=${project.projectDir}/libs/nb-javac-26+35.jar"
+                "jdk.compiler=${project.projectDir}/libs/nb-javac-27+23.jar"
             )
         )
 }

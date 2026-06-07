@@ -32,7 +32,7 @@ import java.util.Objects;
 
 /**
  * @implNote This class needs to maintain JDK 8 source compatibility.
- * <p>
+ *
  * It is used internally in the JDK to implement jimage/jrtfs access,
  * but also compiled and delivered as part of the jrtfs.jar to support access
  * to the jimage file provided by the shipped JDK by tools running on JDK 8.
@@ -97,12 +97,12 @@ public class ImageStringsReader implements ImageStrings {
                 int n = 0;
 
                 do {
-                    buffer[n++] = (byte) (0x80 | (uch & 0x3F));
+                    buffer[n++] = (byte)(0x80 | (uch & 0x3F));
                     uch >>= 6;
                     mask >>= 1;
                 } while ((uch & mask) != 0);
 
-                buffer[n] = (byte) ((mask << 1) | uch);
+                buffer[n] = (byte)((mask << 1) | uch);
 
                 do {
                     seed = (seed * HASH_MULTIPLIER) ^ (buffer[n--] & 0xFF);
@@ -167,7 +167,7 @@ public class ImageStringsReader implements ImageStrings {
                 }
             }
 
-            chars[j++] = (char) uch;
+            chars[j++] = (char)uch;
         }
     }
 
@@ -249,7 +249,7 @@ public class ImageStringsReader implements ImageStrings {
                         "byte sequence: " + uch);
             }
 
-            chars[j++] = (char) uch;
+            chars[j++] = (char)uch;
         }
 
         throw new InternalError("No terminating zero byte for modified UTF-8 byte sequence");
@@ -292,7 +292,7 @@ public class ImageStringsReader implements ImageStrings {
                 // non-ASCII byte, run slow-path from current offset
                 break;
             }
-            if (slen <= stringOffset || string.charAt(stringOffset) != (char) ch) {
+            if (slen <= stringOffset || string.charAt(stringOffset) != (char)ch) {
                 // No match
                 return -1;
             }
@@ -358,21 +358,21 @@ public class ImageStringsReader implements ImageStrings {
                 int n = 0;
 
                 do {
-                    buffer[n++] = (byte) (0x80 | (uch & 0x3F));
+                    buffer[n++] = (byte)(0x80 | (uch & 0x3F));
                     uch >>= 6;
                     mask >>= 1;
                 } while ((uch & mask) != 0);
 
-                buffer[n] = (byte) ((mask << 1) | uch);
+                buffer[n] = (byte)((mask << 1) | uch);
 
                 do {
                     bytes[j++] = buffer[n--];
                 } while (0 <= n);
             } else if (uch == 0) {
-                bytes[j++] = (byte) 0xC0;
-                bytes[j++] = (byte) 0x80;
+                bytes[j++] = (byte)0xC0;
+                bytes[j++] = (byte)0x80;
             } else {
-                bytes[j++] = (byte) uch;
+                bytes[j++] = (byte)uch;
             }
         }
     }

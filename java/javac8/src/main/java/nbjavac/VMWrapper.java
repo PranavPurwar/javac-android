@@ -24,7 +24,6 @@
  */
 package nbjavac;
 
-import com.sun.nio.zipfs.ZipFileSystemProvider;
 import com.sun.tools.javac.ConfigProvider;
 
 import java.io.IOException;
@@ -53,7 +52,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
+
+import jdk.nio.zipfs.ZipFileSystemProvider;
 
 public class VMWrapper {
     private VMWrapper() {
@@ -63,7 +65,7 @@ public class VMWrapper {
         return new String[0];
     }
 
-    private static final String[] symbolFileLocation = {"lib", "ct.sym"};
+    private static final String[] symbolFileLocation = { "lib", "ct.sym" };
     private static Reference<Path> cachedCtSym = new SoftReference<>(null);
 
     private static final Map<String, ?> CT_SYM_ZIP_ENV = Map.of(
@@ -108,11 +110,11 @@ public class VMWrapper {
         while (resources.hasMoreElements()) {
             URL res = resources.nextElement();
             if ("jar".equals(res.getProtocol())) {
-                return ((JarURLConnection) res.openConnection()).getJarFileURL();
+                return ((JarURLConnection)res.openConnection()).getJarFileURL();
             } else if (res.getProtocol().equals("bundleresource")) {
                 // running inside Eclipse,
                 URLConnection conn = res.openConnection();
-                if (!"BundleURLConnection".equals(conn.getClass().getSimpleName())) {
+                if (!"BundleURLConnection".equals(conn.getClass().getSimpleName())){
                     continue;
                 }
                 // use reflection to call `public URL getLocalURL()` if it exists,
@@ -226,7 +228,15 @@ public class VMWrapper {
     }
 
     public static <T> Stream<T> optional2Stream(Optional<T> opt) {
-        return opt.isPresent() ? Stream.of(opt.get()) : Stream.empty();
+        return opt.isPresent()? Stream.of(opt.get()) : Stream.empty();
+    }
+
+    public static <T> void optionalIfPresentOrElse(Optional<T> opt, Consumer<T> consumer, Runnable empty) {
+        if (opt.isPresent()) {
+            consumer.accept(opt.get());
+        } else {
+            empty.run();
+        }
     }
 
     public static <K, V> Map<K, V> toMap(K k1, V v1, K k2, V v2) {

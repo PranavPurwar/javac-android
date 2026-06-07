@@ -6,7 +6,11 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.ProjectLayout
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 import java.io.File
 
 open class PatchNBJavacTask: DefaultTask() {
@@ -20,7 +24,7 @@ open class PatchNBJavacTask: DefaultTask() {
     @get:Input
     val sourceProjectPaths: ListProperty<String> =
         project.objects.listProperty(String::class.java).apply {
-            set(listOf(":java:javac", ":java:javac8", ":java:zipfs", ":java:jrtfs"))
+            set(listOf(":java:javac", ":java:javac8", ":java:zipfs27", ":java:jrtfs"))
 
             project.findProperty("sourceProjectPaths")?.let {
                 set((it as String).split(",").map { it.trim() })
@@ -69,7 +73,7 @@ open class PatchNBJavacTask: DefaultTask() {
         dependsOn(
             sourceProjectPaths.map { paths ->
                 paths.map {
-                    if (it.endsWith("zipfs")) {
+                    if (it.endsWith("zipfs27")) {
                         "$it:classes"
                     } else {
                         "$it:compileDebugJavaWithJavac"
@@ -116,7 +120,7 @@ open class PatchNBJavacTask: DefaultTask() {
     }
 
     private fun resolveCompilerJar(version: String): File {
-        val jar = project.rootProject.file("java/javac/libs/nb-javac-26+35.jar")
+        val jar = project.rootProject.file("java/javac/libs/nb-javac-27+23.jar")
 
         if (!jar.exists()) {
             throw IllegalStateException("Local JAR not found at: ${jar.absolutePath}")
@@ -132,26 +136,27 @@ open class PatchNBJavacTask: DefaultTask() {
             val buildDir = srcProj.layout.buildDirectory.asFile.get()
             val resolved = File(buildDir, "intermediates/javac/debug/compileDebugJavaWithJavac/classes")
 
-            println("Source Directory for patches (${srcProj.path}): ${resolved.absolutePath}")
-
             if (resolved.exists()) {
+                println("Source Directory for patches (${srcProj.path}): ${resolved.absolutePath}")
                 result.add(resolved)
             } else {
-                buildDir.walkTopDown()
-                    .filter { it.isFile && it.extension == "class" }
-                    .mapNotNull { classFile ->
-                        var current: File? = classFile.parentFile
-                        while (current != null && current.toPath().startsWith(buildDir.toPath())) {
-                            if (current.name == "classes") {
-                                return@mapNotNull current
-                            }
-                            current = current.parentFile
-                        }
-                        classFile.parentFile
-                    }
-                    .distinct()
-                    .filter { it.exists() && it.isDirectory }
-                    .forEach { result.add(it) }
+                println("Source Directory for patches (${srcProj.path}): ${buildDir.resolve("classes/java").absolutePath}")
+                result.add(buildDir.resolve("classes/java"))
+//                buildDir.walkTopDown()
+//                    .filter { it.isFile && it.extension == "class" }
+//                    .mapNotNull { classFile ->
+//                        var current: File? = classFile.parentFile
+//                        while (current != null && current.toPath().startsWith(buildDir.toPath())) {
+//                            if (current.name == "classes") {
+//                                return@mapNotNull current.resolve("java")
+//                            }
+//                            current = current.parentFile
+//                        }
+//                        classFile.parentFile
+//                    }
+//                    .distinct()
+//                    .filter { it.exists() && it.isDirectory }
+//                    .forEach { result.add(it) }
             }
         }
 

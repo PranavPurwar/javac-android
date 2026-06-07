@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2025, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2026, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,57 +26,72 @@ package jdk.internal.jrtfs;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.AccessController;
+import java.security.CodeSource;
 import java.security.PrivilegedAction;
 
 import jdk.internal.jimage.ImageReader;
 import jdk.internal.jimage.ImageReader.Node;
+import jdk.internal.jimage.PreviewMode;
 
 /**
  * @implNote This class needs to maintain JDK 8 source compatibility.
- * <p>
+ *
  * It is used internally in the JDK to implement jimage/jrtfs access,
  * but also compiled and delivered as part of the jrtfs.jar to support access
  * to the jimage file provided by the shipped JDK by tools running on JDK 8.
  */
 @SuppressWarnings({"removal", "suppression"})
-abstract class SystemImage {
+public abstract class SystemImage implements AutoCloseable {
 
-    abstract Node findNode(String path) throws IOException;
+    public abstract Node findNode(String path) throws IOException;
+    public abstract byte[] getResource(Node node) throws IOException;
+    public abstract void close() throws IOException;
 
-    abstract byte[] getResource(Node node) throws IOException;
+    /**
+     * Opens the system image for the current runtime.
+     *
+     * @param mode determines whether preview mode should be enabled.
+     * @return a new system image based on either the jimage file or an "exploded"
+     *     modules directory, according to the build state.
+     */
+    public static SystemImage open(PreviewMode mode) throws IOException {
+        return modulesImageExists ? fromJimage(moduleImageFile, mode) : fromDirectory(explodedModulesDir, mode);
+    }
 
-    abstract void close() throws IOException;
+    /** Internal factory method for testing only, use {@link SystemImage#open(PreviewMode)}. */
+    public static SystemImage fromJimage(Path path, PreviewMode mode) throws IOException {
+        final ImageReader image = ImageReader.open(path, mode);
+        return new SystemImage() {
+            @Override
+            public Node findNode(String path) throws IOException {
+                return image.findNode(path);
+            }
+            @Override
+            public byte[] getResource(Node node) throws IOException {
+                return image.getResource(node);
+            }
+            @Override
+            public void close() throws IOException {
+                image.close();
+            }
+        };
+    }
 
-    static SystemImage open() throws IOException {
-        if (modulesImageExists) {
-            // open a .jimage and build directory structure
-            final ImageReader image = ImageReader.open(moduleImageFile);
-            return new SystemImage() {
-                @Override
-                Node findNode(String path) throws IOException {
-                    return image.findNode(path);
-                }
-
-                @Override
-                byte[] getResource(Node node) throws IOException {
-                    return image.getResource(node);
-                }
-
-                @Override
-                void close() throws IOException {
-                    image.close();
-                }
-            };
+    /** Internal factory method for testing only, use {@link SystemImage#open(PreviewMode)}. */
+    public static SystemImage fromDirectory(Path modulesDir, PreviewMode mode) throws IOException {
+        if (!Files.isDirectory(modulesDir)) {
+            throw new FileSystemNotFoundException(modulesDir.toString());
         }
-        if (Files.notExists(explodedModulesDir))
-            throw new FileSystemNotFoundException(explodedModulesDir.toString());
-        return new ExplodedImage(explodedModulesDir);
+        return new ExplodedImage(modulesDir);
     }
 
     private static final String RUNTIME_HOME;
@@ -112,7 +127,7 @@ abstract class SystemImage {
     private static String findHome() {
 //        CodeSource cs = SystemImage.class.getProtectionDomain().getCodeSource();
 //        if (cs == null)
-//            return com.sun.tools.javac.ConfigProvider.JAVA_HOME");
+//            return System.getProperty("java.home");
 //
 //        // assume loaded from $TARGETJDK/lib/jrt-fs.jar
 //        URL url = cs.getLocation();

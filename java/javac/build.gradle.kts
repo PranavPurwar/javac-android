@@ -11,15 +11,15 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
 dependencies {
-    compileOnly(files("../javac/libs/nb-javac-26+35.jar"))
+    compileOnly(files("../javac/libs/nb-javac-27+23.jar"))
     implementation(project(":java:javac8"))
-    implementation(project(":java:zipfs"))
+    implementation(project(":java:zipfs27"))
     implementation(project(":java:jrtfs"))
 }
 
